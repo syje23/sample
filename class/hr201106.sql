@@ -209,59 +209,23 @@ WHERE e.department_id = d.department_id AND d.location_id = l.location_id AND l.
 
 -- 위치 ID가 1700인 동일한 사원들의 EMPLOYEE_ID, LAST_NAME, DEPARTMENT_ID, SALARY 조회
 -- (EMPLOYEES 와 DEPARTMENTS 조인)
-SELECT  e.employee_id, e.last_name, e.department_id, e.salary, d.location_id
+SELECT  e.employee_id, e.last_name, e.department_id, e.salary
 FROM employees E, departments D
-WHERE e.department_id = d.department_id and d.location_id = 1700;
+WHERE e.department_id = d.department_id AND 
 
 -- DEPARTMENT_NAME, LOCATION_ID, 각 부서별 사원수, 각 부서별 평균 연봉 조회
 -- (EMPLOYEES, DEPARTMENT 조인)
-SELECT d.department_name, d.location_id, COUNT(e.department_id), ROUND(AVG(e.salary),0)
-FROM employees E, departments D
-WHERE e.department_id = d.department_id
-GROUP BY d.department_name, d.location_id;
+
 
 -- EXECUTIVE 부서에 근무하는 모든 사원들의 DEPARTMENT_ID, LAST_NAME,JOB_ID 조회
 -- (EMPLOYEES, DEPARTMENT 조인)
-SELECT e.department_id, e.last_name, e.job_id
-FROM employees E, departments D
-WHERE e.department_id = d.department_id and d.department_name = 'Executive';
+
 
 -- 기존의 직업을 여전히 가지고 있는 사원들의 사번 및 JOB_ID 조회
 -- (EMPLOYEES, JOB_HISTORY 조인)
-SELECT e.employee_id, e.job_id
-FROM employees E, job_history J
-WHERE e.employee_id = j.employee_id and e.job_id = j.job_id;
+
 
 -- 각 사원별 소속 부서에서 자신보다 늦게 고용되었으나 보다 많은 연봉을 받는 사원이 존재하는 모든 사원들의 LAST_NAME을 조회
 -- (EMPLOYEES SELF JOIN)
-SELECT e1.department_id, e1.first_name || ' ' || e1.last_name AS name, e2.first_name || ' ' || e2.last_name AS high_name
-FROM employees E1, employees E2
-WHERE e1.department_id = e2.department_id AND e1.hire_date < e2.hire_date AND e1.salary < e2.salary
 
--- 서브쿼리 실습
--- 회사 전체 평균 연봉보다 더 많이 받는 사원들의 last_name, salary 조회
-SELECT last_name, salary
-FROM employees
-WHERE salary > (SELECT AVG(salary) FROM employees);
 
--- last_name 에 u가 포함되는 사원들과 동일 부서에 근무하는 사원들의 employee_id, last_name 조회
-SELECT employee_id, last_name
-FROM employees
-WHERE department_id = ANY (SELECT department_id FROM employees WHERE last_name like '%u%');
-
-SELECT employee_id, last_name
-FROM employees
-WHERE department_id IN (SELECT DISTINCT department_id FROM employees WHERE last_name like '%u%');
-
--- NOT EXISTS 연산자 사용하여 매니저가 아닌 사원 이름 조회
-SELECT first_name, last_name
-FROM employees e1
-WHERE NOT EXISTS (SELECT DISTINCT e1.manager_id 
-                                    FROM employees e2 
-                                    WHERE e1.employee_id = e2.manager_id);
-
-SELECT first_name, last_name
-FROM employees e1
-WHERE e1.employee_id NOT IN (SELECT DISTINCT e1.manager_id 
-                                    FROM employees e2 
-                                    WHERE e1.employee_id = e2.manager_id);
